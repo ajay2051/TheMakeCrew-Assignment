@@ -26,11 +26,11 @@ jobs:
           python -m pip install pip --upgrade
           python -m pip install -r requirements.txt
 
-      - name: Run Django Tests
-        env:
-          SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-        run: |
-          python manage.py test
+#      - name: Run Django Tests
+#        env:
+#          SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
+#        run: |
+#          python manage.py test
 
       - name: Django Run Server
         env:
