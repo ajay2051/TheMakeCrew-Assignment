@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      POSTGRES_DB: mk_crew
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
       DB_HOST: localhost
       DB_PORT: 5432
 
@@ -20,12 +20,16 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_DB: ${{ env.DB_NAME }}
-          POSTGRES_USER: ${{ env.DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout Code
@@ -48,13 +52,15 @@ jobs:
       - name: Run Migrations
         env:
           SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-          DATABASE_URL: postgresql://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}
-        run: python manage.py migrate
+          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.POSTGRES_DB }}
+        run: |
+          echo "Database URL: $DATABASE_URL"
+          python manage.py migrate
 
       - name: Django Run Server
         env:
           SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-          DATABASE_URL: postgresql://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}
+          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.POSTGRES_DB }}
         run: |
           python manage.py runserver &
           sleep 5
