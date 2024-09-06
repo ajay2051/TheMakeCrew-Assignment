@@ -8,6 +8,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -26,15 +38,16 @@ jobs:
           python -m pip install pip --upgrade
           python -m pip install -r requirements.txt
 
-#      - name: Run Django Tests
-#        env:
-#          SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-#        run: |
-#          python manage.py test
-
-      - name: Django Run Server
+      - name: Run Migrations
         env:
           SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
+          DATABASE_URL: postgresql://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@localhost:5432/${{ env.DB_NAME }}
+        run: python manage.py migrate
+
+
+
+
+      - name: Django Run Server
         run: |
           python manage.py runserver &
           sleep 5
