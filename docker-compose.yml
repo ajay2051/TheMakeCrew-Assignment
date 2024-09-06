@@ -1,0 +1,80 @@
+version: '3.7'
+
+services:
+
+  mf_redis_db:
+    container_name: 'mf_sip_redis_db'
+    image: redis:7-alpine
+    ports:
+      - ":6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 05s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+    env_file:
+      - .env
+    networks:
+      grpc_networks:
+  mf-sip-up-db:
+    container_name: mf-sip-up-db
+    image: postgres:15
+    ports:
+      - ":5432"
+    user: postgres
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PORT: ${DATABASE_PORT}
+      # POSTGRES_HOST_AUTH_METHOD: "trust"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mf-sip-up-db:/var/lib/postgresql/data
+    networks:
+      grpc_networks:
+
+
+  mf-sip-up-api:
+    container_name: mf-sip-up-api
+    build: .
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+    depends_on:
+      mf-sip-up-db:
+        condition: service_healthy
+      mf_redis_db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+      - "50052:50051"
+    restart: unless-stopped
+
+    networks:
+      grpc_networks:
+
+
+volumes:
+  mf-sip-up-db:
+  mf_redis_db:
+
+
+networks:
+  grpc_networks:
+    driver: bridge
+    external: true
