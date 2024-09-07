@@ -14,7 +14,7 @@ class RegisterView(generics.ListCreateAPIView):
 class MessageList(generics.ListCreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] # Only registered users can see message list
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
@@ -22,7 +22,7 @@ class MessageList(generics.ListCreateAPIView):
 
 class MessageSearch(generics.ListAPIView):
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] # Only registered users can search message
 
     def get_queryset(self):
         query = self.request.query_params.get('q', '')

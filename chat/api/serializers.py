@@ -4,6 +4,10 @@ from chat.models import CustomUser, Message
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    """
+    Serializers for Custom User Model
+    """
+
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'email', 'password', 'bio', 'address']
@@ -15,6 +19,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    """
+    Serializers for Message Model
+    """
     sender_username = serializers.ReadOnlyField(source='sender.username')
     class Meta:
         model = Message
