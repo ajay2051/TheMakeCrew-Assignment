@@ -1,11 +1,11 @@
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 
-from chat.api.serializers import MessageSerializer, CustomUserSerializer
-from chat.models import Message, CustomUser
+from chat.api.serializers import CustomUserSerializer, MessageSerializer
+from chat.models import CustomUser, Message
 
 
-class RegisterView(generics.CreateAPIView):
+class RegisterView(generics.ListCreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]

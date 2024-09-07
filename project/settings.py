@@ -62,7 +62,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -180,11 +180,11 @@ SIMPLE_JWT = {
 
 CHANNEL_LAYERS = {
     "default": {
-        # "BACKEND": "channels.layers.InMemoryChannelLayer",
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        }
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {
+        #     "hosts": [("localhost", 6379)],
+        # }
     }
 }
 
