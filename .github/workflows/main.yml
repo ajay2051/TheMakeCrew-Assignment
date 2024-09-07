@@ -13,7 +13,7 @@ jobs:
       POSTGRES_DB: mk_crew
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_HOST: postgtres
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
 
     services:
@@ -51,20 +51,20 @@ jobs:
 
       - name: Debug Database Connection
         run: |
-          echo "Database URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}"
-          PGPASSWORD=${{ env.POSTGRES_PASSWORD }} psql -h ${{ env.POSTGRES_HOST }} -U ${{ env.POSTGRES_USER }} -d ${{ env.POSTGRES_DB }} -c "SELECT 1;"
+          echo "Database URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}"
+          PGPASSWORD=${{ env.POSTGRES_PASSWORD }} psql -h postgres -U ${{ env.POSTGRES_USER }} -d ${{ env.POSTGRES_DB }} -c "SELECT 1;"
 
       - name: Run Migrations
         env:
           SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}
+          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}
         run: |
           python manage.py migrate
 
       - name: Django Run Server
         env:
           SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
-          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}
+          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}
         run: |
           python manage.py runserver &
           sleep 5
