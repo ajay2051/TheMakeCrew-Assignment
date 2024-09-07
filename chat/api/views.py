@@ -1,8 +1,14 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 
-from chat.api.serializers import MessageSerializer
-from chat.models import Message
+from chat.api.serializers import MessageSerializer, CustomUserSerializer
+from chat.models import Message, CustomUser
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class MessageList(generics.ListCreateAPIView):
@@ -12,6 +18,7 @@ class MessageList(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
+
 
 class MessageSearch(generics.ListAPIView):
     serializer_class = MessageSerializer
