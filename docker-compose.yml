@@ -5,27 +5,23 @@ services:
     container_name: mk-crew-db
     image: postgres:15
     ports:
-      - ":5432"
+      - "5433:5432"
     user: postgres
     environment:
-      - DATABASE_NAME=${DB_NAME}
-      - DATABASE_USERNAME=${DB_USER}
-      - DATABASE_PASSWORD=${DB_PASSWORD}
-      - DATABASE_HOST=${DB_HOST}
-      - DATABASE_PORT=${DB_PORT}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'"
+          "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"
         ]
       interval: 5s
       timeout: 5s
       retries: 10
     volumes:
       - mk-crew-db:/var/lib/postgresql/data
-
-
 
   mk-crew-api:
     container_name: mk-crew-api
@@ -36,8 +32,8 @@ services:
       - DATABASE_NAME=${DB_NAME}
       - DATABASE_USERNAME=${DB_USER}
       - DATABASE_PASSWORD=${DB_PASSWORD}
-      - DATABASE_HOST=${DB_HOST}
-      - DATABASE_PORT=${DB_PORT}
+      - DATABASE_HOST=mk-crew-db
+      - DATABASE_PORT=5432
     depends_on:
       mk-crew-db:
         condition: service_healthy
@@ -45,8 +41,5 @@ services:
       - "8001:8000"
     restart: unless-stopped
 
-
-
 volumes:
   mk-crew-db:
-
